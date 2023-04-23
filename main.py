@@ -10,13 +10,13 @@ API_KEY = os.environ["API_KEY"]
 
 
 ### BASIC AUTH EXAMPLE BELOW ####
-# basic_auth = HTTPBasicAuth('satoshi', 'nakamoto')
+# basic_auth = HTTPBasicAuth('satoshi1', 'nakamoto2')
 
 
 ### Nutritionix API, APP Info and code to post workout info and get workout data back (calories etc..) ###
 
-# API_KEY = "0bdffd29cc40967bb3115dece0778584"
-# APP_ID = "af68a4fc"
+# API_KEY = "xxxxxxxxxxxxxxx"
+# APP_ID = "yyyyyyyyyyy"
 
 exercise_endpoint = "https://trackapi.nutritionix.com/v2/natural/exercise"
 
