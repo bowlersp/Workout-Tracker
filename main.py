@@ -1,15 +1,30 @@
 import requests
+import os
+from datetime import datetime
+#from requests.auth import HTTPBasicAuth
 
-API_KEY = "0bdffd29cc40967bb3115dece0778584"
-APP_ID = "af68a4fc"
+#### Set the Environment Variables ####
+
+APP_ID = os.environ["APP_ID"]
+API_KEY = os.environ["API_KEY"]
+
+
+### BASIC AUTH EXAMPLE BELOW ####
+# basic_auth = HTTPBasicAuth('satoshi', 'nakamoto')
+
+
+### Nutritionix API, APP Info and code to post workout info and get workout data back (calories etc..) ###
+
+# API_KEY = "0bdffd29cc40967bb3115dece0778584"
+# APP_ID = "af68a4fc"
 
 exercise_endpoint = "https://trackapi.nutritionix.com/v2/natural/exercise"
 
-GENDER = input("What is your gender, please enter a valid binary response ('male' or 'female' only please)\n")
+GENDER = input("What is your gender?('male' or 'female' only please)\n")
 WEIGHT_KG = input("What is your weight in kilos?\n")
 HEIGHT_CM = input("What is your height in centimeters?\n")
 AGE = input("What is your age?\n")
-exercise_text = input("Which exercise did you perform?\n")
+exercise_text = input("Which exercise did you perform and for how long? (minutes or hours are both allowed)\n")
 
 headers = {
     "x-app-id": APP_ID,
@@ -28,3 +43,33 @@ response = requests.post(exercise_endpoint, headers=headers, json=params)
 result = response.json()
 print(result)
 
+
+### BEARER AUTH EXAMPLE BELOW FOR SHEETY ###
+
+bearer_headers = {
+    "Authorization": f"Bearer {os.environ['TOKEN']}"
+}
+
+#### Sheety API used to interact with Google Docs to post workout data gathered from Nutritionix ####
+
+sheet_endpoint = os.environ["SHEET_POST_URL"]
+#GET_URL = "https://api.sheety.co/bb15c627c9309200309bfa098d280463/workoutTracking/workouts"
+#SHEET_POST_URL = "https://api.sheety.co/bb15c627c9309200309bfa098d280463/workoutTracking/workouts"
+#PUT_URL = "https://api.sheety.co/bb15c627c9309200309bfa098d280463/workoutTracking/workouts/[Object ID]"
+
+today_date = datetime.now().strftime("%d/%m/%Y")
+now_time = datetime.now().strftime("%X")
+
+for exercise in result["exercises"]:
+    sheet_inputs = {
+        "workout": {
+            "date": today_date,
+            "time": now_time,
+            "exercise": exercise["name"].title(),
+            "duration": exercise["duration_min"],
+            "calories": exercise["nf_calories"]
+        }
+    }
+
+    sheet_response = requests.post(sheet_endpoint, json=sheet_inputs, headers=bearer_headers)
+    print(sheet_response.text)
